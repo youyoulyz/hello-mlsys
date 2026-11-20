@@ -1,0 +1,9 @@
+W1120 19:00:49.907766 2483980 simple_timer.cpp:55] [rocprofv3] tool initialization ::     0.278898 sec
+W1120 19:00:49.908089 2483980 simple_timer.cpp:55] [rocprofv3] '/home/luyzh/miniconda3/envs/torch/bin/python runs/course-all-20261120/scripts/prof_gemm_bf16.py' ::     0.000000 sec
+W1120 19:00:51.233880 2483980 tool.cpp:3348] HSA version 1.21.0 initialized (instance=0)
+W1120 19:00:51.326204 2483980 queue_controller.cpp:170] [queue-intercept] device-memory ring-buffer requested but profiling requires system-memory InterceptQueue; falling back to system-memory ring for agent 369817792 (priority and CU-mask from the descriptor are not preserved)
+W1120 19:00:51.368227 2483980 tool.cpp:3348] MARKER (ROCTx) version 1.3.5 initialized (instance=0)
+W1120 19:00:51.710751 2483980 simple_timer.cpp:55] [rocprofv3] '/home/luyzh/miniconda3/envs/torch/bin/python runs/course-all-20261120/scripts/prof_gemm_bf16.py' ::     1.802660 sec
+E1120 19:00:52.261360 2483980 output_stream.cpp:110] Opened result file: runs/course-all-20261120/hw-profile-rocprofv3/gemm-2048-pmc-probe-SQ_INSTS_SMEM/z-lab-7900/2483980_results.json
+W1120 19:00:52.384460 2483980 simple_timer.cpp:55] [rocprofv3] output generation ::     0.670934 sec
+W1120 19:00:52.384681 2483980 simple_timer.cpp:55] [rocprofv3] tool finalization ::     0.671205 sec

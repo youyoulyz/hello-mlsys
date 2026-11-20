@@ -1,0 +1,8 @@
+W1120 19:04:20.800276 2486972 simple_timer.cpp:55] [rocprofv3] tool initialization ::     0.274330 sec
+W1120 19:04:20.800648 2486972 simple_timer.cpp:55] [rocprofv3] '/home/luyzh/miniconda3/envs/torch/bin/python -c import torch; a=torch.randn(1024,1024,device="cuda"); b=torch.randn_like(a); [a.add_(b) for _ in range(20)]; torch.cuda.synchronize(); print("ok", a[0,0].item())' ::     0.000000 sec
+W1120 19:04:22.244895 2486972 tool.cpp:3348] HSA version 1.21.0 initialized (instance=0)
+W1120 19:04:22.327113 2486972 queue_controller.cpp:170] [queue-intercept] device-memory ring-buffer requested but profiling requires system-memory InterceptQueue; falling back to system-memory ring for agent 1138756640 (priority and CU-mask from the descriptor are not preserved)
+W1120 19:04:22.629250 2486972 simple_timer.cpp:55] [rocprofv3] '/home/luyzh/miniconda3/envs/torch/bin/python -c import torch; a=torch.randn(1024,1024,device="cuda"); b=torch.randn_like(a); [a.add_(b) for _ in range(20)]; torch.cuda.synchronize(); print("ok", a[0,0].item())' ::     1.828601 sec
+E1120 19:04:23.068133 2486972 output_stream.cpp:110] Opened result file: runs/course-all-20261120/hw-profile-rocprofv3/vector-add-pmc-matchplugin/z-lab-7900/2486972_results.json
+W1120 19:04:23.183136 2486972 simple_timer.cpp:55] [rocprofv3] output generation ::     0.551538 sec
+W1120 19:04:23.183475 2486972 simple_timer.cpp:55] [rocprofv3] tool finalization ::     0.551911 sec

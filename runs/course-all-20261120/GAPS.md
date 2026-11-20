@@ -12,12 +12,14 @@
   - 现状：所有 W7900D 结果均为 `pending` 或声明参数下的解析预测；7900 XTX 数字没有冒充 W7900D。
   - 需要反馈：由谁提供参数表？是否有 ≥2 卡/≥4 卡窗口？
 
-- [x] **A02 [已部分解决] `rocprofv3` kernel trace 已完成；PMC 仍不可用**
+- [x] **A02 [已定位] `rocprofv3` kernel trace 已完成；PMC 目标计数器在 gfx1100 返回 0**
   - 章节：Ch2、Ch8
   - 已做：用 torch 环境自带的 `rocprofv3 1.3.5` + `--kernel-trace --marker-trace` 采集 GEMM、Qwen3-0.6B、Qwen3-4B；产物在 `hw-profile-rocprofv3/`。
   - 已得：GEMM kernel 平均 0.502 ms；4B prefill GPU busy 85.86%，decode 46.94%；0.6B decode GPU busy 30.39%。
-  - 仍缺：PMC 硬件计数器（L2 命中率、VALU 利用率、occupancy 等）。尝试 `--pmc GRBM_GUI_ACTIVE SQ_WAVES_sum ...` 时报 `aqlprofile API table load failed: HSA_STATUS_ERROR`。
-  - 需要反馈：是否允许调整 GPU 权限/容器能力以启用 PMC？如果不允许，课程可以把“kernel 时间线归因”作为最低要求。
+  - PMC 复测：补 conda `libhsa-amd-aqlprofile64.so` 无版本 symlink 后，`--pmc` 可启动；`SQ_BUSY_CYCLES` / `SQ_WAVES_sum` 有值，但 `SQ_INSTS_VALU`、`SQ_WAVE_CYCLES`、`GL2C_HIT/MISS`、`TA_TA_BUSY`、`GRBM_*` 及派生 `L2CacheHit` / `OccupancyPercent` 均为 0。
+  - 排除项：root + 匹配插件、`perf_event_paranoid=1`、不依赖 torch 的原生 HIP 探针结果一致，因此不是 root/容器权限，也不是 torch 库栈问题。
+  - 仍缺：可用的 L2 命中率、VALU 利用率和 occupancy 数据。若课程必须要求这些指标，需要换支持该计数器集合的 GPU/ROCm/driver 环境；否则只能以 kernel 时间线归因为最低要求。
+  - 需要反馈：课程是否接受“`SQ_BUSY_CYCLES` / `SQ_WAVES_sum` 的有限 PMC + kernel 时间线”，还是必须换环境补齐 L2/VALU/occupancy？
 
 - [ ] **A03 [需资源] `rocm-bandwidth-test`**
   - 章节：Ch5
@@ -194,7 +196,7 @@
 
 ## 建议处理顺序
 
-1. **先解决 A01/A03/A04/A05**：没有 W7900D 参数、带宽工具、多卡环境和独立 vLLM，Ch2/5/6/7/9.3 的课程闭环无法真正完成。A02 的 kernel trace 已补，只剩 PMC 权限问题。
+1. **先解决 A01/A03/A04/A05**：没有 W7900D 参数、带宽工具、多卡环境和独立 vLLM，Ch2/5/6/7/9.3 的课程闭环无法真正完成。A02 的 kernel trace 已补；PMC 已确认是 gfx1100 计数器返回 0，不是权限问题。
 2. **并行修 B01–B04、B08、B13**：这些是模拟器输出可信度与可教性的核心问题，不需要额外硬件。
 3. **再补 C03/C04/C06/C09**：优先做能形成“预测 vs 实测”对照的最小实验，而不是追求全矩阵。
 4. **最后处理 D01–D06**：统一记录规范，避免后续再次出现“fixture 被当成实测”“7900 XTX 被写成 W7900D”。
@@ -202,7 +204,7 @@
 ## 需要你直接回复的最小信息
 
 1. W7900D 参数表与可用时间（A01）。
-2. 是否允许启用 `rocprofv3` PMC（当前 `aqlprofile` 失败），以及是否安装 `rocm-bandwidth-test`（A02/A03）。
+2. 是否接受 A02 的有限 PMC（`SQ_BUSY_CYCLES` / `SQ_WAVES_sum`），还是提供支持 L2/VALU/occupancy 的 GPU/ROCm 环境；是否安装 `rocm-bandwidth-test`（A02/A03）。
 3. 是否能提供 2/4 卡 GPU 与独立 vLLM 卡（A04/A05）。
 4. Ch9.2 的 TPOT/throughput 目标值（B09）。
 5. Ch9.3 是否有真实脱敏轨迹；没有的话是否接受“合成教学轨迹”表述（B10）。

@@ -4,7 +4,7 @@
 - 设备：AMD Radeon RX 7900 XTX（GPU0，23.98 GiB）
 - 工具：`/home/luyzh/miniconda3/envs/torch/bin/rocprofv3`，版本 1.3.5，ROCm 10.0.0
 - Python：`/home/luyzh/miniconda3/envs/torch/bin/python`（torch 2.12.0+rocm10.0.0）
-- 采集：`--kernel-trace --marker-trace -f json`
+- 采集：`--kernel-trace --marker-trace -f json`；PMC 另见下方
 - 产物：`hw-profile-rocprofv3/`
 
 ## 为什么必须用 torch 环境自带的 rocprofv3
@@ -55,6 +55,56 @@ HIP_VISIBLE_DEVICES=0 $PROF --kernel-trace --marker-trace -f json \
 $PY runs/course-all-20261120/scripts/summarize_rocprof.py \
   --results <results.json> --out <summary.json> --labels PREFILL,DECODE
 ```
+
+## PMC 复测：root、插件路径与 gfx1100 限制
+
+最初的 `aqlprofile API table load failed` **不是 GPU 权限问题**。`strace` 显示 HSA runtime 会查找无版本后缀的 `libhsa-amd-aqlprofile64.so`，而 conda 目录只有 `libhsa-amd-aqlprofile64.so.1`：
+
+```text
+_rocm_sdk_core/lib/libhsa-amd-aqlprofile64.so.1
+```
+
+用临时目录补一个同版本 symlink 后，PMC 采集可以正常启动：
+
+```bash
+CONDA=/home/luyzh/miniconda3/envs/torch/lib/python3.14/site-packages/_rocm_sdk_core/lib
+LINK=$(mktemp -d)
+ln -s "$CONDA/libhsa-amd-aqlprofile64.so.1" "$LINK/libhsa-amd-aqlprofile64.so"
+
+LD_LIBRARY_PATH="$LINK:$CONDA" HIP_VISIBLE_DEVICES=0 \
+  /home/luyzh/miniconda3/envs/torch/bin/rocprofv3 \
+  --pmc SQ_BUSY_CYCLES SQ_WAVES_sum SQ_INSTS_VALU GL2C_HIT_sum GL2C_MISS_sum \
+  --kernel-trace --marker-trace -f json -d <out-dir> -- \
+  /home/luyzh/miniconda3/envs/torch/bin/python \
+  runs/course-all-20261120/scripts/prof_gemm_bf16.py
+```
+
+另外也验证过 `LD_LIBRARY_PATH=/opt/rocm/lib` 可以绕过加载错误，但它加载的是系统版 aqlprofile，和 conda 的 HSA runtime 不同构建，计数器结果同样为零；这不是推荐路径。
+
+### 结果
+
+| 计数器 | GEMM 2048³ | HIP vector-add | 结论 |
+|-|-:|-:|-|
+| `SQ_BUSY_CYCLES` | 非零（约 53–54 万 cycles） | 非零 | 可用 |
+| `SQ_WAVES_sum` | 1936 | 非零 | 可用 |
+| `GRBM_COUNT` | 0 | 0 | 不可用 |
+| `GRBM_GUI_ACTIVE` | 0 | 0 | 不可用 |
+| `SQ_INSTS_VALU` | 0 | 0 | 不可用 |
+| `SQ_INSTS_SMEM` | 0 | 0 | 不可用 |
+| `SQ_WAVE_CYCLES` | 0 | 0 | 不可用 |
+| `GL2C_HIT_sum` / `GL2C_MISS_sum` | 0 / 0 | 0 / 0 | 不可用 |
+| `TA_TA_BUSY` | 0 | 0 | 不可用 |
+
+高层派生指标 `L2CacheHit`、`OccupancyPercent`、`MeanOccupancyPerActiveCU`、`MemUnitBusy` 也全部返回 0。`VALUBusy` 在当前 gfx1100 上甚至没有被 rocprofv3 识别为可用计数器。
+
+### 排除项
+
+- **root 不是解**：用 root + 正确 symlink 重新运行原生 HIP 探针，`rocprof_status=0`，但目标计数器仍为 0。
+- **perf 权限不是解**：临时把 `kernel.perf_event_paranoid` 从 4 调到 1，目标计数器仍为 0；测试后已恢复为 4。
+- **不是 torch 独有**：不加载 torch 的 HIP vector-add 程序结果相同。
+- **不是计数器名写错**：`SQ_BUSY_CYCLES` 和 `SQ_WAVES_sum` 在相同采集里正常返回非零值。
+
+因此当前可用的 PMC 事实是：**gfx1100 + ROCm 10.0 的 rocprofv3 能启动 PMC 并读取 `SQ_BUSY_CYCLES` / `SQ_WAVES_sum`，但 L2、VALU、occupancy 所需计数器块返回 0**。L2 命中率、VALU 利用率和 occupancy 仍然不能作为实测指标写入结论。
 
 ## GEMM 2048³ BF16
 
@@ -126,9 +176,7 @@ Top kernels（decode）：
 
 ## 限制
 
-- **PMC 不可用**：尝试 `--pmc GRBM_GUI_ACTIVE SQ_WAVES_sum SQ_INSTS_VALU SQ_INSTS_SMEM GL2C_HIT_sum GL2C_MISS_sum MemUnitBusy GPUBusy` 时报：
-  `aqlprofile API table load failed: HSA_STATUS_ERROR: A generic error has occurred.`
-  因此没有 L2 命中率、VALU 利用率、occupancy 等硬件计数器。
+- **PMC 仅部分可用**：补 conda 的 `libhsa-amd-aqlprofile64.so` symlink 后，`--pmc` 可运行；`SQ_BUSY_CYCLES` / `SQ_WAVES_sum` 有值，但 L2、VALU、occupancy 相关计数器在 gfx1100 上返回 0。root 与 `perf_event_paranoid` 均不改变结果。
 - **Profile 开销**：trace 模式会改变墙钟；逐 step 时间只用于同次 profile 内的相对归因，不作为 Ch2/Ch7 的最终延迟。
 - **不是 W7900D**：所有数字来自 RX 7900 XTX，不能外推为 W7900D 参数。
 - **随机 prompt**：profile 使用随机 token id，不是课程固定数据集；模型结构、层数和 KV 路径与真实请求一致，但 token 内容不影响算子形状。
@@ -139,9 +187,15 @@ Top kernels（decode）：
 | 路径 | 内容 |
 |-|-|
 | `hw-profile-rocprofv3/gemm-2048-markers/` | GEMM kernel trace + ROCTx + `summary.json` |
+| `hw-profile-rocprofv3/gemm-2048-pmc-matchplugin/` | 匹配 conda aqlprofile 后的 PMC 复测 |
+| `hw-profile-rocprofv3/gemm-2048-pmc-full/` | GEMM 原始计数器组合复测 |
+| `hw-profile-rocprofv3/hip-vector-add-pmc/` | 不依赖 torch 的原生 HIP vector-add PMC 探针 |
+| `hw-profile-rocprofv3/hip-vector-add-pmc-root/` | root + 匹配插件探针 |
+| `hw-profile-rocprofv3/hip-vector-add-pmc-paranoid1/` | `perf_event_paranoid=1` 对照 |
 | `hw-profile-rocprofv3/qwen3-0.6b-p512-d8/` | 0.6B prefill/decode trace + `result.json` + `summary.json` |
 | `hw-profile-rocprofv3/qwen3-4b-p512-d4/` | 4B prefill/decode trace + `result.json` + `summary.json` |
 | `scripts/prof_gemm_bf16.py` | GEMM profile 负载 |
 | `scripts/prof_qwen_steps.py` | Qwen prefill/decode profile 负载 |
 | `scripts/summarize_rocprof.py` | 按 marker 窗口和 kernel 类别汇总 |
+| `scripts/probe_hip_pmc.cpp` | 原生 HIP vector-add PMC 对照探针 |
 

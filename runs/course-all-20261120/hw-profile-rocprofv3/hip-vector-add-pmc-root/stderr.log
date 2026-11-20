@@ -1,0 +1,8 @@
+W1120 19:06:23.650015 2488613 simple_timer.cpp:55] [rocprofv3] tool initialization ::     0.301410 sec
+W1120 19:06:23.650459 2488613 simple_timer.cpp:55] [rocprofv3] '/tmp/probe_hip_pmc.1795172696' ::     0.000000 sec
+W1120 19:06:23.670314 2488613 tool.cpp:3348] HSA version 1.21.0 initialized (instance=0)
+W1120 19:06:23.687961 2488613 queue_controller.cpp:170] [queue-intercept] device-memory ring-buffer requested but profiling requires system-memory InterceptQueue; falling back to system-memory ring for agent 111343667881984 (priority and CU-mask from the descriptor are not preserved)
+W1120 19:06:23.737017 2488613 simple_timer.cpp:55] [rocprofv3] '/tmp/probe_hip_pmc.1795172696' ::     0.086557 sec
+E1120 19:06:23.778136 2488613 output_stream.cpp:110] Opened result file: /tmp/rocprof-root-pmc.5y1Rsr/z-lab-7900/2488613_results.json
+W1120 19:06:23.814639 2488613 simple_timer.cpp:55] [rocprofv3] output generation ::     0.076439 sec
+W1120 19:06:23.814692 2488613 simple_timer.cpp:55] [rocprofv3] tool finalization ::     0.076535 sec

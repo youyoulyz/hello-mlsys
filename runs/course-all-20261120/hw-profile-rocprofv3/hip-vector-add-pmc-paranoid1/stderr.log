@@ -1,0 +1,8 @@
+W1120 19:05:34.578464 2488002 simple_timer.cpp:55] [rocprofv3] tool initialization ::     0.325183 sec
+W1120 19:05:34.578889 2488002 simple_timer.cpp:55] [rocprofv3] '/tmp/probe_hip_pmc.1795172696' ::     0.000000 sec
+W1120 19:05:34.609965 2488002 tool.cpp:3348] HSA version 1.21.0 initialized (instance=0)
+W1120 19:05:34.627787 2488002 queue_controller.cpp:170] [queue-intercept] device-memory ring-buffer requested but profiling requires system-memory InterceptQueue; falling back to system-memory ring for agent 100654986499648 (priority and CU-mask from the descriptor are not preserved)
+W1120 19:05:34.677492 2488002 simple_timer.cpp:55] [rocprofv3] '/tmp/probe_hip_pmc.1795172696' ::     0.098602 sec
+E1120 19:05:35.134608 2488002 output_stream.cpp:110] Opened result file: runs/course-all-20261120/hw-profile-rocprofv3/hip-vector-add-pmc-paranoid1/z-lab-7900/2488002_results.json
+W1120 19:05:35.241852 2488002 simple_timer.cpp:55] [rocprofv3] output generation ::     0.528024 sec
+W1120 19:05:35.241923 2488002 simple_timer.cpp:55] [rocprofv3] tool finalization ::     0.528280 sec
