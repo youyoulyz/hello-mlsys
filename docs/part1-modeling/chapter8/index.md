@@ -43,7 +43,7 @@ description: "Hello MLSys · 第 8 章 推理框架的系统取舍、Profile 与
 ### 真机实验（RX 9070 XT 16 GB 主线）
 
 - 在同一张卡上对比 vLLM 与 llama.cpp server（或 MIGraphX）在同一模型、同一压测条件下的 P99 和吞吐，做框架取舍的实测依据；注明模型格式、精度与调度的不等价项；
-- 用 `rocprof-compute` 或框架内置 metrics 看 decode 阶段的 kernel 时间占比，解释"为什么某些框架在低并发下延迟更好、高并发下吞吐更差"；
+- 用 `rocprofv3 --kernel-trace`（深计数器再加 `--pmc`，需先锁定稳定性能档，见[附录 F](/appendix/appendix-f-troubleshooting/)）或框架内置 metrics 看 decode 阶段的 kernel 时间占比，解释"为什么某些框架在低并发下延迟更好、高并发下吞吐更差"；
 - 这是全书"预测→实测→校准→决策"闭环的收口章：学生要用前面所有章节的模型（显存、量化、Roofline、排队）来解释本章的框架差异。
 
 ### 闭环与交付

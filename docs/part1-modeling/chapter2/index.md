@@ -56,7 +56,7 @@ description: "Hello MLSys · 第 2 章 第一次真机 Profile 与性能校准 �
    - **`rocprof-compute`**（原 Omniperf，roofline / 深硬件计数器）：`profile` 模式**不支持本机架构**——支持列表是 `gfx908/gfx90a/gfx94x/gfx950/gfx115x`，而本机是 `gfx1100 + gfx1201`。所以大纲里写的"`rocprof-compute profile` 跑通一个 kernel"在这张卡上**不可用**；要 roofline 深计数器应走 `rocprofv3 --pmc`，而非 `rocprof-compute`。
    - **`rocprof-sys`**（原 Omnitrace，全系统 CPU+GPU 时间线）：本机**不在 PATH**（`rocprof_sys_present=false`）；本章也不需要（单 GPU 负载不需要全系统 trace）。
    - **`torch.profiler`（HIP activity）**：跨架构兜底，用于**进程内** e2e profile（§2.6）——它能直接嵌入 Python 会话，且不受 `rocprofv3` 子进程与 `transformers` 加载路径的 LLVM 冲突影响（§2.6 末）。
-   - **RDNA4 perfmon 坑**：gfx1201 的深硬件计数器在默认 AUTO 性能档下被门控关闭（ROCm PR #7455），跑 `--pmc` 需先强制固定性能档；但本章只用到 `--kernel-trace`，不受影响。
+   - **RDNA perfmon 坑**：gfx1100/gfx1201 的深硬件计数器在默认 `AUTO` 性能档下可能全部读成 0；此外 conda/TheRock 运行时 wheel 可能缺少无版本 `libhsa-amd-aqlprofile64.so`。用 `rocprofv3 --pmc` 前需补 symlink 并锁定 `STABLE_STD`/`STABLE_PEAK`。完整命令与验证见[附录 F](/appendix/appendix-f-troubleshooting/)；本章主实验只用 `--kernel-trace`，不依赖深计数器。
    处理：本章以 `rocprofv3 --kernel-trace` 为"看 kernel"底座、`torch.profiler` 做进程内 e2e、`rocm-smi` 采样时钟/功耗。这是一条被准入检查主动捕获、而非在实验中途踩出来的"工具/架构不一致"（§2.4 的第三类误差来源）。
 2. **SDPA backend 口径 —— 确认 repeat_kv 口径**。等头 dense 输入（MHA 16/16）可用 `FLASH / EFFICIENT / MATH`（`CUDNN` 不可用）；GQA 原始 dense 输入（16q/8kv）只可用 `FLASH / MATH`，`EFFICIENT / CUDNN` 被拒。即 Qwen3 的 GQA 必须**先 `repeat_kv` 把 K/V 展开到 16 头再走 fused 路径**——与第 1 章 §1.4 的 SDPA 口径一致，本章全部预测也按 repeat_kv 口径计数。
 3. **模型可加载可运行**。Qwen3-1.7B（`/mnt/public/models`）加载成功、prefill 前向 OK、decode 单步 OK；config 实测：28 层 / hidden 2048 / inter 6144 / 16 q 头 / 8 kv 头 / head_dim 128 / vocab 151936 / `tie_word_embeddings=true`。
@@ -277,6 +277,6 @@ description: "Hello MLSys · 第 2 章 第一次真机 Profile 与性能校准 �
 - 本书第 7 章（continuous batching）与第 9 章（PD 分离）：本章"发射受限 + 低利用率"结论的落点——batching 摊薄发射成本、抬高 attention 利用率，PD 分离把两种硬件 regime 拆开调度。
 - 本书第 3 章（显存账）：容量维度（什么放得下），与本章的速度维度（多快）互补。
 - llama.cpp `llama-bench`（§2.7 CPU 参照线工具：pp512/tg128 默认双测、`-o json`、`-ngl`/`-t`/`-r`；Qwen3-0.6B F16 GGUF 由 HF BF16 转出）——无 GPU 学员的 CPU 预测入口。
-- AMD `rocprofv3` 文档（kernel dispatch 追踪，gfx1201 可用；`--pmc` 深计数器需强制固定性能档，见 ROCm PR #7455）/ `rocprof-compute`（roofline 微架构计数，build 3.8.0 尚不支持 gfx1201）；PyTorch `torch.profiler`（HIP/CUDA activity，跨架构、可进程内嵌入）。
+- AMD `rocprofv3` 文档（kernel dispatch 追踪，gfx1201 可用；`--pmc` 深计数器需稳定性能档，见[附录 F](/appendix/appendix-f-troubleshooting/)）/ `rocprof-compute`（roofline 微架构计数，build 3.8.0 尚不支持 gfx1201）；PyTorch `torch.profiler`（HIP/CUDA activity，跨架构、可进程内嵌入）。
 - Williams, Waterman & Patterson, *"Roofline,"* CACM 2009（η 作为 kernel 效率、屋顶线的效率语义）；Dao et al., *"FlashAttention,"* 2022（§2.5 域外 attention 的融合动机）。
 - [hello-gpu / hello-rocm](https://github.com/datawhalechina/hello-gpu)（datawhalechina，GPU/ROCm 基础参考写法）。 https://www.ccs.tsukuba.ac.jp/wp-content/uploads/sites/14/2025/09/20.-Newer-tools-ROCprof-Trace-Decoder-and-Omnistat.pdf

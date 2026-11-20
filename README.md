@@ -228,7 +228,7 @@ hello-mlsys/
 | [附录 C 术语表](./docs/appendix/appendix-c-glossary/index.md) | 待补充 | 🚧 |
 | [附录 D 参考资源](./docs/appendix/appendix-d-references/index.md) | 待补充 | 🚧 |
 | [附录 E 社区共建](./docs/appendix/appendix-e-community/index.md) | 待补充 | 🚧 |
-| [附录 F 常见失败模式与排查清单](./docs/appendix/appendix-f-troubleshooting/index.md) | 待补充 | 🚧 |
+| [附录 F 常见失败模式与排查清单](./docs/appendix/appendix-f-troubleshooting/index.md) | 含 rocprofv3 PMC 修复记录 | 🚧 |
 
 ## 贡献者名单
 

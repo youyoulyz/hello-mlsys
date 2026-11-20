@@ -49,4 +49,4 @@ next: false
 - [附录 C 术语表](/appendix/appendix-c-glossary/) — 待补充
 - [附录 D 参考资源](/appendix/appendix-d-references/) — 待补充
 - [附录 E 社区共建](/appendix/appendix-e-community/) — 待补充
-- [附录 F 常见失败模式与排查清单](/appendix/appendix-f-troubleshooting/) — 待补充
+- [附录 F 常见失败模式与排查清单](/appendix/appendix-f-troubleshooting/) — 含 rocprofv3 PMC 修复记录
