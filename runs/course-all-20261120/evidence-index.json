@@ -1,6 +1,6 @@
 {
     "schema_version": 1,
-    "generated_at": "2026-11-20T17:10:00+08:00",
+    "generated_at": "2026-11-20T19:40:00+08:00",
     "record": "SUMMARY.md",
     "gaps": "GAPS.md",
     "environment": {
@@ -29,23 +29,60 @@
             "rocm-bandwidth-test"
         ],
         "unavailable_capabilities": [
-            "gfx1100 PMC target counters return zero: SQ_INSTS_VALU, SQ_WAVE_CYCLES, GL2C_HIT_sum, GL2C_MISS_sum, TA_TA_BUSY, GRBM_COUNT, GRBM_GUI_ACTIVE",
-            "rocprofv3 VALUBusy is not recognized on gfx1100"
+            "rocprofv3 VALUBusy named metric is not defined for gfx1100; use VALUInsts or SQ_INSTS_VALU",
+            "PMC target counters read zero while GPU0 perf level is AUTO; stable perf level is required"
         ],
         "pmc_diagnostics": {
+            "status": "available_with_stable_perf_level",
             "aqlprofile_load_fix": "symlink libhsa-amd-aqlprofile64.so to the conda libhsa-amd-aqlprofile64.so.1",
+            "upstream_issues": {
+                "aqlprofile_symlink": "https://github.com/ROCm/TheRock/issues/7085",
+                "auto_dvfs_zero_counters": "https://github.com/ROCm/rocm-systems/issues/8523"
+            },
+            "workaround": "sudo amd-smi set -g 0 -l STABLE_STD or STABLE_PEAK before collection; restore AUTO afterwards",
+            "perf_level_used": "STABLE_PEAK",
+            "perf_level_after_tests": "AUTO",
             "available": [
                 "SQ_BUSY_CYCLES",
-                "SQ_WAVES_sum"
+                "SQ_WAVES_sum",
+                "SQ_INSTS_VALU",
+                "SQ_INSTS_SMEM",
+                "SQ_WAVE_CYCLES",
+                "GL2C_HIT_sum",
+                "GL2C_MISS_sum",
+                "TA_TA_BUSY",
+                "GRBM_COUNT",
+                "GRBM_GUI_ACTIVE",
+                "L2CacheHit",
+                "OccupancyPercent",
+                "MeanOccupancyPerActiveCU",
+                "MemUnitBusy",
+                "VALUInsts",
+                "Wavefronts"
+            ],
+            "zero_under_auto": [
+                "SQ_INSTS_VALU",
+                "SQ_INSTS_SMEM",
+                "SQ_WAVE_CYCLES",
+                "GL2C_HIT_sum",
+                "GL2C_MISS_sum",
+                "TA_TA_BUSY",
+                "GRBM_COUNT",
+                "GRBM_GUI_ACTIVE",
+                "L2CacheHit",
+                "OccupancyPercent",
+                "MemUnitBusy"
             ],
             "excluded_causes": [
-                "root",
+                "root without stable perf level",
                 "perf_event_paranoid=1",
                 "torch library stack"
             ],
             "native_probe": "hip-vector-add-pmc",
             "root_probe": "hip-vector-add-pmc-root",
-            "perf_probe": "hip-vector-add-pmc-paranoid1"
+            "perf_probe": "hip-vector-add-pmc-paranoid1",
+            "stable_probe": "pmc-stable-peak-gemm/",
+            "summary_script": "scripts/summarize_pmc.py"
         },
         "w7900d": "parameters and access pending"
     },
@@ -89,12 +126,26 @@
                 "gemm_event_median_ms": 0.575344,
                 "launch_gap_ms": 0.073484,
                 "pmc": {
-                    "status": "limited",
+                    "status": "available_with_stable_perf_level",
+                    "perf_level": "STABLE_PEAK",
                     "available": [
                         "SQ_BUSY_CYCLES",
-                        "SQ_WAVES_sum"
+                        "SQ_WAVES_sum",
+                        "SQ_INSTS_VALU",
+                        "SQ_INSTS_SMEM",
+                        "SQ_WAVE_CYCLES",
+                        "GL2C_HIT_sum",
+                        "GL2C_MISS_sum",
+                        "TA_TA_BUSY",
+                        "GRBM_COUNT",
+                        "GRBM_GUI_ACTIVE",
+                        "L2CacheHit",
+                        "OccupancyPercent",
+                        "MeanOccupancyPerActiveCU",
+                        "MemUnitBusy",
+                        "VALUInsts"
                     ],
-                    "zero": [
+                    "zero_under_auto": [
                         "SQ_INSTS_VALU",
                         "SQ_INSTS_SMEM",
                         "SQ_WAVE_CYCLES",
@@ -107,7 +158,16 @@
                         "OccupancyPercent",
                         "MemUnitBusy"
                     ],
-                    "note": "aqlprofile symlink fixes load failure; gfx1100 target counter blocks return zero; root and perf_event_paranoid=1 do not change results"
+                    "gemm_measured_median": {
+                        "L2CacheHit": 84.104,
+                        "OccupancyPercent": 18.206,
+                        "MeanOccupancyPerActiveCU": 14.388,
+                        "MemUnitBusy": 55.096,
+                        "VALUInsts": 2374.105,
+                        "Wavefronts": 1936.0
+                    },
+                    "evidence": "hw-profile-rocprofv3/pmc-stable-peak-gemm/",
+                    "note": "aqlprofile symlink fixes load failure; AUTO dVFS returns zero for target events; STABLE_STD/STABLE_PEAK restores them"
                 }
             }
         },
@@ -217,9 +277,11 @@
                 "ch8-screen-simulation/",
                 "ch8-screen-sweep/",
                 "hw-ch8-torch-eager-4b/",
-                "hw-profile-rocprofv3/"
+                "hw-profile-rocprofv3/",
+                "hw-profile-rocprofv3/pmc-stable-peak-qwen3-0.6b/",
+                "hw-profile-rocprofv3/pmc-stable-peak-qwen3-4b/"
             ],
-            "summary": "screen 1 pass/3 fail; sweep 1 pass/1 fail; rocprofv3 Qwen3-0.6B/4B kernel attribution complete; no multi-framework comparison; PMC limited to SQ_BUSY_CYCLES/SQ_WAVES_sum",
+            "summary": "screen 1 pass/3 fail; sweep 1 pass/1 fail; rocprofv3 Qwen3-0.6B/4B kernel attribution and PMC complete; no multi-framework comparison",
             "profile": {
                 "tool": "rocprofv3 1.3.5",
                 "qwen3_0_6b": {
@@ -239,12 +301,19 @@
                     "decode_elementwise_pct": 26.35
                 },
                 "pmc": {
-                    "status": "limited",
+                    "status": "available_with_stable_perf_level",
+                    "perf_level": "STABLE_PEAK",
                     "available": [
                         "SQ_BUSY_CYCLES",
-                        "SQ_WAVES_sum"
+                        "SQ_WAVES_sum",
+                        "L2CacheHit",
+                        "OccupancyPercent",
+                        "MeanOccupancyPerActiveCU",
+                        "MemUnitBusy",
+                        "VALUInsts",
+                        "Wavefronts"
                     ],
-                    "zero": [
+                    "zero_under_auto": [
                         "SQ_INSTS_VALU",
                         "SQ_INSTS_SMEM",
                         "SQ_WAVE_CYCLES",
@@ -257,7 +326,49 @@
                         "OccupancyPercent",
                         "MemUnitBusy"
                     ],
-                    "note": "aqlprofile symlink fixes load failure; gfx1100 target counter blocks return zero; root and perf_event_paranoid=1 do not change results"
+                    "qwen_median": {
+                        "qwen3_0_6b": {
+                            "prefill": {
+                                "kernels": 1619,
+                                "L2CacheHit": 34.24,
+                                "OccupancyPercent": 16.58,
+                                "MeanOccupancyPerActiveCU": 37.35,
+                                "MemUnitBusy": 13.89,
+                                "VALUInsts": 90.0
+                            },
+                            "decode": {
+                                "kernels": 12726,
+                                "L2CacheHit": 19.28,
+                                "OccupancyPercent": 0.069,
+                                "MeanOccupancyPerActiveCU": 7.58,
+                                "MemUnitBusy": 2.33,
+                                "VALUInsts": 87.0
+                            }
+                        },
+                        "qwen3_4b": {
+                            "prefill": {
+                                "kernels": 2075,
+                                "L2CacheHit": 33.79,
+                                "OccupancyPercent": 23.25,
+                                "MeanOccupancyPerActiveCU": 38.08,
+                                "MemUnitBusy": 25.47,
+                                "VALUInsts": 90.0
+                            },
+                            "decode": {
+                                "kernels": 8155,
+                                "L2CacheHit": 25.81,
+                                "OccupancyPercent": 0.11,
+                                "MeanOccupancyPerActiveCU": 7.57,
+                                "MemUnitBusy": 2.90,
+                                "VALUInsts": 84.0
+                            }
+                        }
+                    },
+                    "evidence": [
+                        "hw-profile-rocprofv3/pmc-stable-peak-qwen3-0.6b/",
+                        "hw-profile-rocprofv3/pmc-stable-peak-qwen3-4b/"
+                    ],
+                    "note": "AUTO dVFS returns zero for target events; STABLE_PEAK restores them; VALUBusy is not defined on gfx1100"
                 }
             }
         },
@@ -348,7 +459,7 @@
             "rocm": "10.0.0",
             "kernel_trace": "ok",
             "marker_trace": "ok",
-            "pmc": "limited: SQ_BUSY_CYCLES and SQ_WAVES_sum available; L2/VALU/occupancy counters return zero on gfx1100"
+            "pmc": "available with STABLE_PEAK: raw counters and L2/VALU/occupancy metrics are non-zero; AUTO returns zero for target events; GPU0 restored to AUTO"
         }
     }
 }

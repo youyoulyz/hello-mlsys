@@ -1,0 +1,406 @@
+{
+  "sources": [
+    {
+      "path": "runs/course-all-20261120/hw-profile-rocprofv3/pmc-stable-peak-gemm/raw/pass_1/z-lab-7900/2503982_results.json",
+      "counter_collections": 8,
+      "windows": {
+        "WARMUP": 3,
+        "MEASURED": 5
+      }
+    },
+    {
+      "path": "runs/course-all-20261120/hw-profile-rocprofv3/pmc-stable-peak-gemm/raw/pass_2/z-lab-7900/2504052_results.json",
+      "counter_collections": 8,
+      "windows": {
+        "WARMUP": 3,
+        "MEASURED": 5
+      }
+    },
+    {
+      "path": "runs/course-all-20261120/hw-profile-rocprofv3/pmc-stable-peak-gemm/raw/pass_3/z-lab-7900/2504159_results.json",
+      "counter_collections": 8,
+      "windows": {
+        "WARMUP": 3,
+        "MEASURED": 5
+      }
+    },
+    {
+      "path": "runs/course-all-20261120/hw-profile-rocprofv3/pmc-stable-peak-gemm/raw/pass_4/z-lab-7900/2504252_results.json",
+      "counter_collections": 8,
+      "windows": {
+        "WARMUP": 3,
+        "MEASURED": 5
+      }
+    }
+  ],
+  "windows": {
+    "WARMUP": {
+      "counters": {
+        "GL2C_HIT_sum": {
+          "samples_per_instance": {
+            "count": 3,
+            "nonzero": 3,
+            "min": 205151.0,
+            "median": 2951384.0,
+            "mean": 2080821.3333333333,
+            "max": 3085929.0,
+            "sum": 6242464.0
+          },
+          "per_dispatch_total": {
+            "count": 3,
+            "nonzero": 3,
+            "min": 205151.0,
+            "median": 2951384.0,
+            "mean": 2080821.3333333333,
+            "max": 3085929.0,
+            "sum": 6242464.0
+          }
+        },
+        "GL2C_MISS_sum": {
+          "samples_per_instance": {
+            "count": 3,
+            "nonzero": 3,
+            "min": 204820.0,
+            "median": 593811.0,
+            "mean": 466318.3333333333,
+            "max": 600324.0,
+            "sum": 1398955.0
+          },
+          "per_dispatch_total": {
+            "count": 3,
+            "nonzero": 3,
+            "min": 204820.0,
+            "median": 593811.0,
+            "mean": 466318.3333333333,
+            "max": 600324.0,
+            "sum": 1398955.0
+          }
+        },
+        "GRBM_COUNT": {
+          "samples_per_instance": {
+            "count": 3,
+            "nonzero": 3,
+            "min": 65912.0,
+            "median": 671157.0,
+            "mean": 475380.3333333333,
+            "max": 689072.0,
+            "sum": 1426141.0
+          },
+          "per_dispatch_total": {
+            "count": 3,
+            "nonzero": 3,
+            "min": 65912.0,
+            "median": 671157.0,
+            "mean": 475380.3333333333,
+            "max": 689072.0,
+            "sum": 1426141.0
+          }
+        },
+        "GRBM_GUI_ACTIVE": {
+          "samples_per_instance": {
+            "count": 3,
+            "nonzero": 3,
+            "min": 65912.0,
+            "median": 671157.0,
+            "mean": 475380.3333333333,
+            "max": 689072.0,
+            "sum": 1426141.0
+          },
+          "per_dispatch_total": {
+            "count": 3,
+            "nonzero": 3,
+            "min": 65912.0,
+            "median": 671157.0,
+            "mean": 475380.3333333333,
+            "max": 689072.0,
+            "sum": 1426141.0
+          }
+        },
+        "SQ_BUSY_CYCLES": {
+          "samples_per_instance": {
+            "count": 144,
+            "nonzero": 144,
+            "min": 37885.0,
+            "median": 537901.0,
+            "mean": 381464.3888888889,
+            "max": 608891.0,
+            "sum": 54930872.0
+          },
+          "per_dispatch_total": {
+            "count": 3,
+            "nonzero": 3,
+            "min": 1905897.0,
+            "median": 26088693.0,
+            "mean": 18310290.666666668,
+            "max": 26936282.0,
+            "sum": 54930872.0
+          }
+        },
+        "SQ_INSTS_VALU": {
+          "samples_per_instance": {
+            "count": 144,
+            "nonzero": 144,
+            "min": 4352.0,
+            "median": 92880.0,
+            "mean": 65292.194444444445,
+            "max": 109200.0,
+            "sum": 9402076.0
+          },
+          "per_dispatch_total": {
+            "count": 3,
+            "nonzero": 3,
+            "min": 209540.0,
+            "median": 4596268.0,
+            "mean": 3134025.3333333335,
+            "max": 4596268.0,
+            "sum": 9402076.0
+          }
+        },
+        "SQ_WAVES_sum": {
+          "samples_per_instance": {
+            "count": 3,
+            "nonzero": 3,
+            "min": 384.0,
+            "median": 1936.0,
+            "mean": 1418.6666666666667,
+            "max": 1936.0,
+            "sum": 4256.0
+          },
+          "per_dispatch_total": {
+            "count": 3,
+            "nonzero": 3,
+            "min": 384.0,
+            "median": 1936.0,
+            "mean": 1418.6666666666667,
+            "max": 1936.0,
+            "sum": 4256.0
+          }
+        },
+        "SQ_WAVE_CYCLES": {
+          "samples_per_instance": {
+            "count": 144,
+            "nonzero": 144,
+            "min": 302409.0,
+            "median": 7728031.0,
+            "mean": 5406570.034722222,
+            "max": 9006513.0,
+            "sum": 778546085.0
+          },
+          "per_dispatch_total": {
+            "count": 3,
+            "nonzero": 3,
+            "min": 15172925.0,
+            "median": 375181707.0,
+            "mean": 259515361.66666666,
+            "max": 388191453.0,
+            "sum": 778546085.0
+          }
+        },
+        "TA_TA_BUSY": {
+          "samples_per_instance": {
+            "count": 288,
+            "nonzero": 288,
+            "min": 35678.0,
+            "median": 322348.5,
+            "mean": 232749.99305555556,
+            "max": 393564.0,
+            "sum": 67031998.0
+          },
+          "per_dispatch_total": {
+            "count": 3,
+            "nonzero": 3,
+            "min": 3587004.0,
+            "median": 31653764.0,
+            "mean": 22343999.333333332,
+            "max": 31791230.0,
+            "sum": 67031998.0
+          }
+        }
+      }
+    },
+    "MEASURED": {
+      "counters": {
+        "GL2C_HIT_sum": {
+          "samples_per_instance": {
+            "count": 5,
+            "nonzero": 5,
+            "min": 2972956.0,
+            "median": 3048030.0,
+            "mean": 3040015.0,
+            "max": 3088720.0,
+            "sum": 15200075.0
+          },
+          "per_dispatch_total": {
+            "count": 5,
+            "nonzero": 5,
+            "min": 2972956.0,
+            "median": 3048030.0,
+            "mean": 3040015.0,
+            "max": 3088720.0,
+            "sum": 15200075.0
+          }
+        },
+        "GL2C_MISS_sum": {
+          "samples_per_instance": {
+            "count": 5,
+            "nonzero": 5,
+            "min": 583521.0,
+            "median": 593180.0,
+            "mean": 593197.8,
+            "max": 605446.0,
+            "sum": 2965989.0
+          },
+          "per_dispatch_total": {
+            "count": 5,
+            "nonzero": 5,
+            "min": 583521.0,
+            "median": 593180.0,
+            "mean": 593197.8,
+            "max": 605446.0,
+            "sum": 2965989.0
+          }
+        },
+        "GRBM_COUNT": {
+          "samples_per_instance": {
+            "count": 5,
+            "nonzero": 5,
+            "min": 669080.0,
+            "median": 670989.0,
+            "mean": 670518.2,
+            "max": 671464.0,
+            "sum": 3352591.0
+          },
+          "per_dispatch_total": {
+            "count": 5,
+            "nonzero": 5,
+            "min": 669080.0,
+            "median": 670989.0,
+            "mean": 670518.2,
+            "max": 671464.0,
+            "sum": 3352591.0
+          }
+        },
+        "GRBM_GUI_ACTIVE": {
+          "samples_per_instance": {
+            "count": 5,
+            "nonzero": 5,
+            "min": 669080.0,
+            "median": 670989.0,
+            "mean": 670518.2,
+            "max": 671464.0,
+            "sum": 3352591.0
+          },
+          "per_dispatch_total": {
+            "count": 5,
+            "nonzero": 5,
+            "min": 669080.0,
+            "median": 670989.0,
+            "mean": 670518.2,
+            "max": 671464.0,
+            "sum": 3352591.0
+          }
+        },
+        "SQ_BUSY_CYCLES": {
+          "samples_per_instance": {
+            "count": 240,
+            "nonzero": 240,
+            "min": 533563.0,
+            "median": 538544.5,
+            "mean": 542879.7541666667,
+            "max": 589222.0,
+            "sum": 130291141.0
+          },
+          "per_dispatch_total": {
+            "count": 5,
+            "nonzero": 5,
+            "min": 26045903.0,
+            "median": 26052850.0,
+            "mean": 26058228.2,
+            "max": 26077034.0,
+            "sum": 130291141.0
+          }
+        },
+        "SQ_INSTS_VALU": {
+          "samples_per_instance": {
+            "count": 240,
+            "nonzero": 240,
+            "min": 92880.0,
+            "median": 95224.0,
+            "mean": 95755.58333333333,
+            "max": 111544.0,
+            "sum": 22981340.0
+          },
+          "per_dispatch_total": {
+            "count": 5,
+            "nonzero": 5,
+            "min": 4596268.0,
+            "median": 4596268.0,
+            "mean": 4596268.0,
+            "max": 4596268.0,
+            "sum": 22981340.0
+          }
+        },
+        "SQ_WAVES_sum": {
+          "samples_per_instance": {
+            "count": 5,
+            "nonzero": 5,
+            "min": 1936.0,
+            "median": 1936.0,
+            "mean": 1936.0,
+            "max": 1936.0,
+            "sum": 9680.0
+          },
+          "per_dispatch_total": {
+            "count": 5,
+            "nonzero": 5,
+            "min": 1936.0,
+            "median": 1936.0,
+            "mean": 1936.0,
+            "max": 1936.0,
+            "sum": 9680.0
+          }
+        },
+        "SQ_WAVE_CYCLES": {
+          "samples_per_instance": {
+            "count": 240,
+            "nonzero": 240,
+            "min": 7651576.0,
+            "median": 7730002.0,
+            "mean": 7811366.058333334,
+            "max": 8800825.0,
+            "sum": 1874727854.0
+          },
+          "per_dispatch_total": {
+            "count": 5,
+            "nonzero": 5,
+            "min": 374807815.0,
+            "median": 374993010.0,
+            "mean": 374945570.8,
+            "max": 375041719.0,
+            "sum": 1874727854.0
+          }
+        },
+        "TA_TA_BUSY": {
+          "samples_per_instance": {
+            "count": 480,
+            "nonzero": 480,
+            "min": 302160.0,
+            "median": 324069.0,
+            "mean": 326911.7791666667,
+            "max": 398242.0,
+            "sum": 156917654.0
+          },
+          "per_dispatch_total": {
+            "count": 5,
+            "nonzero": 5,
+            "min": 31250294.0,
+            "median": 31377732.0,
+            "mean": 31383530.8,
+            "max": 31552400.0,
+            "sum": 156917654.0
+          }
+        }
+      }
+    }
+  }
+}

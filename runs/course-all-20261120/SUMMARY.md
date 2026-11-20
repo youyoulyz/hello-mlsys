@@ -8,7 +8,7 @@
 - 主机：`z-lab-7900`，Linux 6.14.0-37，Ryzen 9 3900X（12C/24T）
 - GPU0：AMD Radeon RX 7900 XTX，23.98 GiB，`gfx1100`，本记录中的单卡实验主要使用此卡
 - GPU1：AMD Radeon RX 9070 XT，15.92 GiB，`gfx1201`；Ch7 真机 vLLM 使用该卡上已有的共享实例
-- 未获得：W7900D 参数与实机、`rocm-bandwidth-test`、≥4 卡 GPU 集群；`rocprofv3` PMC 可启动，但 gfx1100 仅 `SQ_BUSY_CYCLES` / `SQ_WAVES_sum` 有值，L2/VALU/occupancy 计数器返回 0（root 与 perf 权限已排除）
+- 未获得：W7900D 参数与实机、`rocm-bandwidth-test`、≥4 卡 GPU 集群。`rocprofv3` PMC 已修复：补齐 aqlprofile symlink，并在采集时锁定 `STABLE_PEAK` 性能级别；L2/VALU/occupancy 均可读取，采集后已恢复 `AUTO`
 
 > 本记录严格区分“模拟/解析预测”“测试夹具（fixture）”“真机测量”“行为语义验证”“合成教学轨迹”。凡 `hardware_validated=false` 的结果都不能表述为实测性能；凡 7900 XTX / 9070 XT 的数字都不能写成 W7900D。
 
@@ -23,7 +23,7 @@
 | Ch5 | 通信代价、PCIe、gloo、native PP | PASS（analytical + 部分真机） | analytical + PCIe probe + gloo semantics | 四拓扑拐点与 48 点对账完成；native PP lookup 留出含负结果 |
 | Ch6 | DP/TP/PP 显存与通信拆解 | PASS（analytical） | simulated / declared hardware | 32B 单卡与 DP 失败，TP2/PP2 通过；无真实多卡性能 |
 | Ch7 | DES、排队、SLA、vLLM 压测 | PASS（sim + 9070 XT 真机） | simulated + real vLLM（共享实例） | 模拟拐点 16→32 rps；真机 C1–C64 全完成；内置 goodput 有缺陷 |
-| Ch8 | 框架取舍、容量上界、Profile | PARTIAL | simulated + vLLM + torch eager + rocprofv3 | 筛选器正常；已补 0.6B/4B kernel profile；缺多框架横评，PMC 仅有限计数器 |
+| Ch8 | 框架取舍、容量上界、Profile | PARTIAL | simulated + vLLM + torch eager + rocprofv3 | 筛选器正常；0.6B/4B kernel profile 与 PMC 已完成；缺多框架横评 |
 | Ch9.1 | 端侧助手、资源约束 | PASS（sim + BF16 真机） | simulated + RX 7900 XTX | 6/6 完成，真机预热后 TTFT 28–226 ms；INT4 被 422 拒绝 |
 | Ch9.2 | 单卡 SLA 容量规划 | PARTIAL | simulated | 12/12 完成，并发平台 16；长 8192 输入无 ≤2 s 点；无真机留出 |
 | Ch9.3 | 负载启发的集群设计 | PARTIAL | simulated / synthetic trace | 3 候选 2 通过；52 节点是编写式教学轨迹，不是真实 Claude 轨迹 |
@@ -144,16 +144,16 @@ Qwen3 端到端（512 输入 / 32 输出，PyTorch event）：
 
 归因：GEMM kernel 本身约 0.502 ms；PyTorch event 计时约 0.575 ms，差值约 73 µs/次，主要是 launch、同步和事件计时开销。GEMM 窗口内 kernel 时间占比 100%，没有其他算子混入。产物：`hw-profile-rocprofv3/gemm-2048-markers/`。
 
-PMC 复测（2026-11-20 19:06）：
+PMC 修复（2026-11-20）：
 
-- 补 conda `_rocm_sdk_core/lib` 中缺失的无版本 `libhsa-amd-aqlprofile64.so` symlink 后，`--pmc` 不再报 `aqlprofile API table load failed`。
-- `SQ_BUSY_CYCLES`、`SQ_WAVES_sum` 有非零值；`SQ_INSTS_VALU`、`SQ_INSTS_SMEM`、`SQ_WAVE_CYCLES`、`GL2C_HIT_sum`、`GL2C_MISS_sum`、`TA_TA_BUSY`、`GRBM_COUNT`、`GRBM_GUI_ACTIVE` 全为 0，派生 `L2CacheHit`、`OccupancyPercent`、`MemUnitBusy` 也为 0。
-- root + 匹配插件、`perf_event_paranoid=1`、不依赖 torch 的原生 HIP vector-add 三种对照结果一致，排除了 root 权限、perf 权限和 torch 库栈因素。
-- 结论：gfx1100 + ROCm 10.0 的目标计数器块在当前环境不可用/返回零；仍只能使用 kernel 时间线，不能把 L2 命中率、VALU 利用率或 occupancy 写成实测值。详见 `PROFILE.md` 与 `hw-profile-rocprofv3/hip-vector-add-pmc*`。
+- **加载错误**：conda `_rocm_sdk_core` 只带 `libhsa-amd-aqlprofile64.so.1`，HSA 却按无版本名 `dlopen`；补 `libhsa-amd-aqlprofile64.so -> .so.1` symlink 后解决。上游为 [TheRock#7085](https://github.com/ROCm/TheRock/issues/7085)。
+- **计数器全零**：`AUTO` 动态调频下，VALU/L2/GRBM/TA 等事件不累计。按 [rocm-systems#8523](https://github.com/ROCm/rocm-systems/issues/8523) 锁定 `STABLE_STD`/`STABLE_PEAK` 后全部恢复；本记录用 `STABLE_PEAK`，结束后已恢复 `AUTO`。
+- root 但保持 `AUTO`、`perf_event_paranoid=1`、原生 HIP probe 均不能修复，因此不是权限或 torch 栈问题。root 只用于 `amd-smi set`。
+- 修复后 GEMM 实测：L2 命中率 84.10%，occupancy 18.21%，MemUnitBusy 55.10%，VALUInsts 2374.11/wave。Qwen3-0.6B/4B 的 prefill/decode 也均有非零 L2、occupancy 和 VALU 数据，详见 `PROFILE.md`。
 
 ### 缺项
 
-- `rocprofv3` kernel trace 已补；PMC 仅 `SQ_BUSY_CYCLES` / `SQ_WAVES_sum` 有值，L2 命中率、VALU 利用率、wave occupancy 仍不可用（root 与 perf 限制已排除）。
+- `rocprofv3` kernel trace 与 PMC 均已补；PMC 需在 `STABLE_PEAK` 下采集，不能与 `AUTO` 下的延迟数字混用。
 - 真机在 RX 7900 XTX 上，不是 W7900D；不能把 84.8 TFLOP/s 或 790 GB/s 外推为 W7900D 参数。
 - 没有把 BF16 GEMM/带宽微基准反拟合进 Ch2 的 `eta/beta`；当前课程校准仍来自 fixture。
 
@@ -446,7 +446,7 @@ SLO：TTFT P99 < 1000 ms、TPOT P99 < 50 ms、E2E P99 < 5000 ms。
 ## Ch8 推理框架的系统取舍、Profile 与性能分析
 
 - 产物：`ch8-screen-simulation/`、`ch8-screen-sweep/`、`hw-ch8-torch-eager-4b/`、`hw-profile-rocprofv3/`
-- 状态：筛选器、扫描、vLLM 复用、PyTorch eager 参考、rocprofv3 kernel profile 完成；缺多框架横评与 PMC
+- 状态：筛选器、扫描、vLLM 复用、PyTorch eager 参考、rocprofv3 kernel profile 与 PMC 完成；缺多框架横评
 
 ### Screen simulation
 
@@ -514,10 +514,23 @@ Qwen3-4B，512 输入，4 个 decode step：
 
 > Profile 模式会引入 trace 开销；这里的墙钟与逐 step 事件计时只用于同次 profile 内的相对归因，不作为 Ch2/Ch7 的最终延迟数字。
 
+### PMC 硬件计数器
+
+按 `PROFILE.md` 的修复方法，在 `STABLE_PEAK` 下重新采集派生指标。下表是每个窗口内各 kernel 的中位数；decode 的 `OccupancyPercent` 会被大量微小 kernel 拉低，因此同时看 `MeanOccupancyPerActiveCU`。
+
+| 模型/窗口 | kernel 数 | L2 命中率 | OccupancyPercent | MeanOcc/ActiveCU | MemUnitBusy | VALUInsts |
+|-|-:|-:|-:|-:|-:|-:|
+| 0.6B prefill | 1619 | 34.24% | 16.58% | 37.35 | 13.89% | 90 |
+| 0.6B decode | 12726 | 19.28% | 0.069% | 7.58 | 2.33% | 87 |
+| 4B prefill | 2075 | 33.79% | 23.25% | 38.08 | 25.47% | 90 |
+| 4B decode | 8155 | 25.81% | 0.110% | 7.57 | 2.90% | 84 |
+
+这些数据支持前面的归因：4B prefill 的 L2 命中率、occupancy 和访存单元忙碌度均高于 decode；decode 的 active-CU occupancy 低、MemUnitBusy 低，说明瓶颈更偏向小 kernel 的 launch/epilogue，而不是持续占满的 GEMM 数据通路。
+
 ### 缺项
 
 - 没有 llama.cpp / SGLang / Ollama / MIGraphX 横评。
-- `rocprofv3` kernel trace 已补；PMC 复测仅 `SQ_BUSY_CYCLES` / `SQ_WAVES_sum` 有值，L2/VALU/occupancy 计数器返回 0（root、perf、torch 因素已排除）。
+- PMC 已完成，但需稳定性能级别；当前证据来自 RX 7900 XTX + ROCm 10.0，`VALUBusy` 在 gfx1100 上不存在，使用 `VALUInsts` / `SQ_INSTS_VALU` 替代。
 - 没有多框架失败模式矩阵，无法回答“显存碎片 / 调度开销 / 降频”中哪一个主导。
 ## Ch9.1 端侧部署助手（资源受限实战）
 
@@ -702,7 +715,7 @@ C16/C32/C64 完全相同，说明预测模型已达到批处理/并发平台；C
 2. **Ch3/Ch4 的显存账本方向正确**：4B BF16 权重约 7.5 GiB、每 token KV 144 KiB；量化后权重近似线性下降。但缺真实 PPL 与失败边界。
 3. **Ch5/Ch6 的通信模型能在解析层自洽**：Ring-AllReduce 48 点对账误差 2e-16；TP 通信占比能解释“什么时候切分不划算”。但缺多卡 GPU 性能与动画。
 4. **Ch7 的排队拐点在模拟与真机上方向一致**：模拟开环 16→32 rps 过载，闭环 16→32 clients 违约；真机 9070 XT 在 C64 仍无失败但 TTFT 上升到 268 ms。两边的绝对容量不可直接比较，因为模型、SLA、输入输出长度和硬件不同。
-5. **Ch8 的筛选器能正确拒绝静态显存、P99、吞吐三类失败**；rocprofv3 已补 0.6B/4B kernel profile，显示 decode 的 GPU busy 仅 30%/47%，缺多框架横评与实际可用的 PMC。
+5. **Ch8 的筛选器能正确拒绝静态显存、P99、吞吐三类失败**；rocprofv3 已补 0.6B/4B kernel profile 和 PMC，显示 decode 的 GPU busy 仅 30%/47%、4B prefill L2 命中率约 33.8%，仍缺多框架横评。
 6. **Ch9 的 Agent 协议与 DAG 调度可运行**；Ch9.3 目前是教学合成轨迹，不足以支撑“真实 deep-research 集群”结论。
 
 ## 工具链验证
@@ -716,7 +729,7 @@ C16/C32/C64 完全相同，说明预测模型已达到批处理/并发平台；C
   - Web 导出回放：Qwen3-4B 20 请求，TTFT P99 54.14 ms，61.98 tok/s。
 - 这些基线说明模拟器自身行为可复现；不代表任何硬件性能。
 - `rocprofv3` 必须使用 torch 环境自带的版本（`/home/luyzh/miniconda3/envs/torch/bin/rocprofv3`）；base/系统版本会与 torch 的 `libamd_comgr.so.3` 冲突，报 `LLVM ERROR: inconsistency in registered CommandLine options`。
-- 采集 PMC 前需要给 conda 的 `_rocm_sdk_core/lib` 补一个无版本 `libhsa-amd-aqlprofile64.so` symlink；否则 HSA 会报 `aqlprofile API table load failed`。这是加载器路径问题，不是 root 权限问题。
+- 采集 PMC 需要两个前置条件：给 conda 的 `_rocm_sdk_core/lib` 补无版本 `libhsa-amd-aqlprofile64.so` symlink；用 root 执行 `amd-smi set -l STABLE_STD/STABLE_PEAK`。前者是上游 wheel 打包问题，后者是 gfx11/gfx12 在 `AUTO` dVFS 下的计数器限制。
 
 ## 复现方式
 
@@ -747,15 +760,31 @@ HIP_VISIBLE_DEVICES=0 $PROF --kernel-trace --marker-trace -f json -d <out-dir> -
   --model /mnt/public/models/Qwen3-4B --prompt-tokens 512 --decode-steps 4 \
   --out <out-dir>/result.json
 
-# PMC（gfx1100：先补 aqlprofile 无版本 symlink）
+# PMC（gfx1100：补 aqlprofile symlink，并在 stable 性能级别下采集）
 CONDA=/home/luyzh/miniconda3/envs/torch/lib/python3.14/site-packages/_rocm_sdk_core/lib
 LINK=$(mktemp -d)
 ln -s "$CONDA/libhsa-amd-aqlprofile64.so.1" "$LINK/libhsa-amd-aqlprofile64.so"
+sudo amd-smi set -g 0 -l STABLE_PEAK
 LD_LIBRARY_PATH="$LINK:$CONDA" HIP_VISIBLE_DEVICES=0 $PROF \
-  --pmc SQ_BUSY_CYCLES SQ_WAVES_sum SQ_INSTS_VALU GL2C_HIT_sum GL2C_MISS_sum \
+  --pmc "SQ_INSTS_VALU SQ_WAVE_CYCLES SQ_BUSY_CYCLES SQ_WAVES_sum" \
+  --pmc "GL2C_HIT_sum GL2C_MISS_sum" \
+  --pmc "GRBM_COUNT GRBM_GUI_ACTIVE" \
+  --pmc "TA_TA_BUSY" \
   --kernel-trace --marker-trace -f json -d <out-dir> -- \
   /home/luyzh/miniconda3/envs/torch/bin/python \
   runs/course-all-20261120/scripts/prof_gemm_bf16.py
+
+# 派生指标
+LD_LIBRARY_PATH="$LINK:$CONDA" HIP_VISIBLE_DEVICES=0 $PROF \
+  --pmc "L2CacheHit OccupancyPercent MemUnitBusy MeanOccupancyPerActiveCU MeanOccupancyPerCU VALUInsts Wavefronts" \
+  --kernel-trace --marker-trace -f json -d <out-dir>-derived -- \
+  /home/luyzh/miniconda3/envs/torch/bin/python \
+  runs/course-all-20261120/scripts/prof_gemm_bf16.py
+sudo amd-smi set -g 0 -l AUTO
+
+/home/luyzh/miniconda3/envs/torch/bin/python \
+  runs/course-all-20261120/scripts/summarize_pmc.py \
+  --results '<out-dir>/**/*_results.json' --labels WARMUP,MEASURED --out <summary.json>
 ```
 
 具体子命令以 `mlsys-sim --help` 和对应 `manifest.json` 为准。
@@ -770,7 +799,8 @@ LD_LIBRARY_PATH="$LINK:$CONDA" HIP_VISIBLE_DEVICES=0 $PROF \
 | `tutorial-baseline/` | 教程 FIFO/KV/TP/PP/DAG/Web replay 的完整小产物；大扫描只保留 compact summary |
 | `ch1/` … `ch9-3-*/` | 各章预测、报告、CSV、SVG、HTML |
 | `hw-*` | 真机 JSON（BF16/FP8 load/Ch7 vLLM/Ch9.1） |
-| `hw-profile-rocprofv3/` | GEMM/Qwen3-0.6B/Qwen3-4B 的 kernel trace、ROCTx 窗口与归因 summary |
+| `hw-profile-rocprofv3/` | GEMM/Qwen3-0.6B/Qwen3-4B 的 kernel trace、ROCTx 窗口、PMC 原始/派生 summary |
+| `hw-profile-rocprofv3/pmc-stable-peak-*` | `STABLE_PEAK` 下 GEMM 与 Qwen 的有效 PMC 证据 |
 | `ch5-comm-ledger.json` | 通信账本与 48 点对账 |
 | `ch7-hardware-vllm/` | C1–C64 vLLM benchmark JSON |
 | `ch9-agent/` | 9.1/9.2/9.3 Agent 响应与 INT4 拒绝证据 |

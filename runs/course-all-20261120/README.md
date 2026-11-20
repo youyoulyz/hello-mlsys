@@ -2,7 +2,7 @@
 
 - 完整报告：`SUMMARY.md`
 - rocprofv3 Profile 记录：`PROFILE.md`
-- PMC 复测与 gfx1100 限制：`PROFILE.md` 的“PMC 复测”一节
+- PMC 修复与 gfx1100 dVFS workaround：`PROFILE.md` 的“PMC 修复”一节
 - 缺口与待反馈清单：`GAPS.md`
 - 机器可读索引：`evidence-index.json`
 - 环境快照：`environment.txt`

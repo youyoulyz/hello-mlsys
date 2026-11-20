@@ -1,0 +1,302 @@
+{
+  "sources": [
+    {
+      "path": "/tmp/pmc-stable-peak-qwen06.Adyldi/z-lab-7900/2504725_results.json",
+      "counter_collections": 14345,
+      "windows": {
+        "PREFILL": 1619,
+        "DECODE": 12726
+      }
+    }
+  ],
+  "windows": {
+    "PREFILL": {
+      "counters": {
+        "L2CacheHit": {
+          "samples_per_instance": {
+            "count": 1619,
+            "nonzero": 1590,
+            "min": 0.0,
+            "median": 34.23987164059366,
+            "mean": 38.20181040951252,
+            "max": 89.82094999188924,
+            "sum": 61848.73105300076
+          },
+          "per_dispatch_total": {
+            "count": 1619,
+            "nonzero": 1590,
+            "min": 0.0,
+            "median": 34.23987164059366,
+            "mean": 38.20181040951252,
+            "max": 89.82094999188924,
+            "sum": 61848.73105300076
+          }
+        },
+        "MeanOccupancyPerActiveCU": {
+          "samples_per_instance": {
+            "count": 1619,
+            "nonzero": 1619,
+            "min": 3.9804886183607104,
+            "median": 37.35198206348582,
+            "mean": 32.80244663924355,
+            "max": 58.164052720576315,
+            "sum": 53107.16110893531
+          },
+          "per_dispatch_total": {
+            "count": 1619,
+            "nonzero": 1619,
+            "min": 3.9804886183607104,
+            "median": 37.35198206348582,
+            "mean": 32.80244663924355,
+            "max": 58.164052720576315,
+            "sum": 53107.16110893531
+          }
+        },
+        "MeanOccupancyPerCU": {
+          "samples_per_instance": {
+            "count": 1619,
+            "nonzero": 1619,
+            "min": 0.0103246902413461,
+            "median": 5.305542517006803,
+            "mean": 5.926216033731725,
+            "max": 15.789402276642742,
+            "sum": 9594.543758611664
+          },
+          "per_dispatch_total": {
+            "count": 1619,
+            "nonzero": 1619,
+            "min": 0.0103246902413461,
+            "median": 5.305542517006803,
+            "mean": 5.926216033731725,
+            "max": 15.789402276642742,
+            "sum": 9594.543758611664
+          }
+        },
+        "MemUnitBusy": {
+          "samples_per_instance": {
+            "count": 1619,
+            "nonzero": 1545,
+            "min": 0.0,
+            "median": 13.889323731997495,
+            "mean": 20.842068718246658,
+            "max": 76.67448643165103,
+            "sum": 33743.30925484133
+          },
+          "per_dispatch_total": {
+            "count": 1619,
+            "nonzero": 1545,
+            "min": 0.0,
+            "median": 13.889323731997495,
+            "mean": 20.842068718246658,
+            "max": 76.67448643165103,
+            "sum": 33743.30925484133
+          }
+        },
+        "OccupancyPercent": {
+          "samples_per_instance": {
+            "count": 1619,
+            "nonzero": 1619,
+            "min": 0.0322646570042066,
+            "median": 16.57982036564626,
+            "mean": 18.519425105411642,
+            "max": 49.341882114508564,
+            "sum": 29982.94924566145
+          },
+          "per_dispatch_total": {
+            "count": 1619,
+            "nonzero": 1619,
+            "min": 0.0322646570042066,
+            "median": 16.57982036564626,
+            "mean": 18.519425105411642,
+            "max": 49.341882114508564,
+            "sum": 29982.94924566145
+          }
+        },
+        "VALUInsts": {
+          "samples_per_instance": {
+            "count": 1619,
+            "nonzero": 1619,
+            "min": 3.0,
+            "median": 90.0,
+            "mean": 389.73595887571696,
+            "max": 6521.416666666667,
+            "sum": 630982.5174197857
+          },
+          "per_dispatch_total": {
+            "count": 1619,
+            "nonzero": 1619,
+            "min": 3.0,
+            "median": 90.0,
+            "mean": 389.73595887571696,
+            "max": 6521.416666666667,
+            "sum": 630982.5174197857
+          }
+        },
+        "Wavefronts": {
+          "samples_per_instance": {
+            "count": 1619,
+            "nonzero": 1619,
+            "min": 4.0,
+            "median": 2048.0,
+            "mean": 2505.5293390982088,
+            "max": 25328.0,
+            "sum": 4056452.0
+          },
+          "per_dispatch_total": {
+            "count": 1619,
+            "nonzero": 1619,
+            "min": 4.0,
+            "median": 2048.0,
+            "mean": 2505.5293390982088,
+            "max": 25328.0,
+            "sum": 4056452.0
+          }
+        }
+      }
+    },
+    "DECODE": {
+      "counters": {
+        "L2CacheHit": {
+          "samples_per_instance": {
+            "count": 12726,
+            "nonzero": 10431,
+            "min": 0.0,
+            "median": 19.27710843373494,
+            "mean": 20.38993287823952,
+            "max": 74.35897435897436,
+            "sum": 259482.28580847612
+          },
+          "per_dispatch_total": {
+            "count": 12726,
+            "nonzero": 10431,
+            "min": 0.0,
+            "median": 19.27710843373494,
+            "mean": 20.38993287823952,
+            "max": 74.35897435897436,
+            "sum": 259482.28580847612
+          }
+        },
+        "MeanOccupancyPerActiveCU": {
+          "samples_per_instance": {
+            "count": 12726,
+            "nonzero": 12726,
+            "min": 0.9998946758649745,
+            "median": 7.582512610485443,
+            "mean": 7.776037299280238,
+            "max": 50.44611584544709,
+            "sum": 98957.8506706403
+          },
+          "per_dispatch_total": {
+            "count": 12726,
+            "nonzero": 12726,
+            "min": 0.9998946758649745,
+            "median": 7.582512610485443,
+            "mean": 7.776037299280238,
+            "max": 50.44611584544709,
+            "sum": 98957.8506706403
+          }
+        },
+        "MeanOccupancyPerCU": {
+          "samples_per_instance": {
+            "count": 12726,
+            "nonzero": 12726,
+            "min": 0.0051100089242809,
+            "median": 0.02222014504955835,
+            "mean": 0.5245791099195677,
+            "max": 12.605223196881091,
+            "sum": 6675.793752836418
+          },
+          "per_dispatch_total": {
+            "count": 12726,
+            "nonzero": 12726,
+            "min": 0.0051100089242809,
+            "median": 0.02222014504955835,
+            "mean": 0.5245791099195677,
+            "max": 12.605223196881091,
+            "sum": 6675.793752836418
+          }
+        },
+        "MemUnitBusy": {
+          "samples_per_instance": {
+            "count": 12726,
+            "nonzero": 8185,
+            "min": 0.0,
+            "median": 2.3307172544465855,
+            "mean": 9.086978329874341,
+            "max": 63.409181356368656,
+            "sum": 115640.88622598087
+          },
+          "per_dispatch_total": {
+            "count": 12726,
+            "nonzero": 8185,
+            "min": 0.0,
+            "median": 2.3307172544465855,
+            "mean": 9.086978329874341,
+            "max": 63.409181356368656,
+            "sum": 115640.88622598087
+          }
+        },
+        "OccupancyPercent": {
+          "samples_per_instance": {
+            "count": 12726,
+            "nonzero": 12726,
+            "min": 0.0159687778883778,
+            "median": 0.06943795327986996,
+            "mean": 1.639309718498649,
+            "max": 39.39132249025341,
+            "sum": 20861.855477613808
+          },
+          "per_dispatch_total": {
+            "count": 12726,
+            "nonzero": 12726,
+            "min": 0.0159687778883778,
+            "median": 0.06943795327986996,
+            "mean": 1.639309718498649,
+            "max": 39.39132249025341,
+            "sum": 20861.855477613808
+          }
+        },
+        "VALUInsts": {
+          "samples_per_instance": {
+            "count": 12726,
+            "nonzero": 12726,
+            "min": 3.0,
+            "median": 87.0,
+            "mean": 205.45747350989976,
+            "max": 3529.25,
+            "sum": 2614651.807886984
+          },
+          "per_dispatch_total": {
+            "count": 12726,
+            "nonzero": 12726,
+            "min": 3.0,
+            "median": 87.0,
+            "mean": 205.45747350989976,
+            "max": 3529.25,
+            "sum": 2614651.807886984
+          }
+        },
+        "Wavefronts": {
+          "samples_per_instance": {
+            "count": 12726,
+            "nonzero": 12726,
+            "min": 4.0,
+            "median": 8.0,
+            "mean": 171.73723086594373,
+            "max": 6332.0,
+            "sum": 2185528.0
+          },
+          "per_dispatch_total": {
+            "count": 12726,
+            "nonzero": 12726,
+            "min": 4.0,
+            "median": 8.0,
+            "mean": 171.73723086594373,
+            "max": 6332.0,
+            "sum": 2185528.0
+          }
+        }
+      }
+    }
+  }
+}
